@@ -24,8 +24,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
 
     def get_settings_defaults(self):
         return dict(
-            button_pin="D4",
-            gcode="M119"
+            button_pin="D4"
         )
 
     def get_template_configs(self):
@@ -62,7 +61,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
 
     def send_emergency_stop(self):
         self._logger.info("Sending emergency stop GCODE")
-        self._printer.commands(self._settings.get(["gcode"]))
+        self._printer.commands("M119")
         self.estop_sent = True
         self._logger.info("de-initializing Button pin")
         self.button.deinit()
@@ -78,20 +77,20 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
     def get_update_information(self):
         return {
             "EmergencyStopFT232H": {
-                "displayName": "Emergencystopft232h Plugin",
+                "displayName": "EmergencyStopFT232H Plugin",
                 "displayVersion": self._plugin_version,
 
                 "type": "github_release",
                 "user": "oldmanbluntz",
-                "repo": "OctoPrint-Emergencystopft232h",
+                "repo": "OctoPrint-EmergencyStopFT232h",
                 "current": self._plugin_version,
 
-                "pip": "https://github.com/oldmanbluntz/OctoPrint-Emergencystopft232h/archive/{target_version}.zip",
+                "pip": "https://github.com/oldmanbluntz/OctoPrint-EmergencyStopFT232H/archive/{target_version}.zip",
             }
         }
 
 
-__plugin_name__ = "Emergencystopft232h Plugin"
+__plugin_name__ = "EmergencyStopFT232H Plugin"
 
 __plugin_pythoncompat__ = ">=3,<4"  # Only Python 3
 
