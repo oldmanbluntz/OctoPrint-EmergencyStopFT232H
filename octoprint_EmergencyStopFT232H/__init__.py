@@ -20,7 +20,6 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
     def __init__(self):
         self.button = None
         self.estop_sent = False
-        self.button_value = False
 
     def get_settings_defaults(self):
         return dict(
