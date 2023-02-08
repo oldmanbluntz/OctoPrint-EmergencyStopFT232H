@@ -1,0 +1,16 @@
+<form class="form-horizontal">
+	<h3>EmergencyStopFT232H settings</h3>
+	<div class="control-group">
+		<label class="control-label">{{ _('button PIN C0 - C7 or D4 - D7') }}</label>
+		<div class="controls">
+			<input id="button_pin-input" type="text" min="C0" max="D7" class="input-small" data-bind="value: settings.plugins.emergencystopft232h.button_pin">
+		</div>
+
+		<div class="controls">
+			<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.plugins.emergencystopft232h.inverted_output">
+				{{ _('Inverted output') }}
+			</label>
+		</div>
+	</div>
+</form>
