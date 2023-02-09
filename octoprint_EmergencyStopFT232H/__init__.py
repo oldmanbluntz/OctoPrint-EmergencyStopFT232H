@@ -7,6 +7,7 @@ import flask
 import board
 import os
 import digitalio
+import threading
 
 
 class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
@@ -46,6 +47,9 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
         self._logger.info("-------------------------------------------------------")
         self._logger.info("button pin: {}".format(self._settings.get(["button_pin"])))
         self._logger.info("-------------------------------------------------------")
+        t = threading.Timer(0, self._setup_button)
+        t.daemon = True
+        t.start()
         self._setup_button()
 
     def _setup_button(self):
@@ -56,21 +60,6 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
                 self._logger.info("Sending emergency stop GCODE")
                 self._printer.commands("M112")
                 self.estop_sent = True
-                self.button.deinit()
-                self.idle()
-            else:
-                self.estop_sent = False
-
-    def idle(self):
-        self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
-        self.button.direction = digitalio.Direction.INPUT
-        while True:
-            if self.button.value is True:
-                self._logger.info("Sending emergency stop GCODE")
-                self._printer.commands("M112")
-                self.estop_sent = True
-                self.button.deinit()
-                self._setup_button()
             else:
                 self.estop_sent = False
 
