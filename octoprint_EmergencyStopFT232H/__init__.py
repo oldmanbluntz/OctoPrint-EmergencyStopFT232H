@@ -20,6 +20,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
     def __init__(self):
         self.button = None
         self.estop_sent = False
+        self.button_value = False
 
     def get_settings_defaults(self):
         return dict(
@@ -50,22 +51,28 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
     def _setup_button(self):
         self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
         self.button.direction = digitalio.Direction.INPUT
+        while True:
+            if self.button.value is True:
+                self._logger.info("Sending emergency stop GCODE")
+                self._printer.commands("M112")
+                self.estop_sent = True
+                self.button.deinit()
+                self.idle()
+            else:
+                self.estop_sent = False
 
-    def emergency_stop_triggered(self):
-        if self.button.value is True:
-            self.send_emergency_stop()
-        else:
-            self.estop_sent = False
-            self._setup_button()
-
-    def send_emergency_stop(self):
-        self._logger.info("Sending emergency stop GCODE")
-        self._printer.commands("M119")
-        self.estop_sent = True
-        self._logger.info("de-initializing Button pin")
-        self.button.deinit()
-        self._logger.info("returning to button setup")
-        self._setup_button()
+    def idle(self):
+        self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
+        self.button.direction = digitalio.Direction.INPUT
+        while True:
+            if self.button.value is True:
+                self._logger.info("Sending emergency stop GCODE")
+                self._printer.commands("M112")
+                self.estop_sent = True
+                self.button.deinit()
+                self._setup_button()
+            else:
+                self.estop_sent = False
 
     def on_event(self, event, payload):
         if event is Events.CONNECTED:
@@ -76,20 +83,20 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
     def get_update_information(self):
         return {
             "EmergencyStopFT232H": {
-                "displayName": "EmergencyStopFT232H Plugin",
+                "displayName": "Emergencystopft232h Plugin",
                 "displayVersion": self._plugin_version,
 
                 "type": "github_release",
                 "user": "oldmanbluntz",
-                "repo": "OctoPrint-EmergencyStopFT232h",
+                "repo": "OctoPrint-Emergencystopft232h",
                 "current": self._plugin_version,
 
-                "pip": "https://github.com/oldmanbluntz/OctoPrint-EmergencyStopFT232H/archive/{target_version}.zip",
+                "pip": "https://github.com/oldmanbluntz/OctoPrint-Emergencystopft232h/archive/{target_version}.zip",
             }
         }
 
 
-__plugin_name__ = "EmergencyStopFT232H Plugin"
+__plugin_name__ = "Emergencystopft232h Plugin"
 
 __plugin_pythoncompat__ = ">=3,<4"  # Only Python 3
 
