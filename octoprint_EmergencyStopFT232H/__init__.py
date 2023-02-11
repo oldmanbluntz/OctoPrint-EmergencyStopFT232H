@@ -25,7 +25,6 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
         self.my_thread = None
         self.active = True
         self.estop_sent = False
-        self.button_value = True
 
     def get_settings_defaults(self):
         return dict(
