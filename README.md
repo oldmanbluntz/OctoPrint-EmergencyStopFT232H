@@ -1,2 +1,2 @@
 # OctoPrint-EmergencyStopFT232H
-# Do not install this at the moment! It's not complete. Just wanted somewhere to keep a master of the files. It curently does work, but needs some tweaking still.
+# This does function. If you use it, make sure you go into the settings and set your Buttons pin. It's default is D4 currently.
