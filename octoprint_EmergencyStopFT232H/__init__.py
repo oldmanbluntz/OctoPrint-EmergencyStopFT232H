@@ -8,6 +8,7 @@ import board
 import os
 import digitalio
 import time
+import threading
 
 
 class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
@@ -20,6 +21,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
                                 ):
 
     def __init__(self):
+        self.button = None
         self.active = True
         self.estop_sent = False
         self.button_value = True
@@ -48,19 +50,25 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
         self._logger.info("-------------------------------------------------------")
         self._logger.info("button pin: {}".format(self._settings.get(["button_pin"])))
         self._logger.info("-------------------------------------------------------")
+        self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
+        self.button.direction = digitalio.Direction.INPUT
+        t = threading.Timer(0, self._setup_button)
+        t.daemon = True
+        t.start()
         self._setup_button()
 
     def _setup_button(self):
         self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
         self.button.direction = digitalio.Direction.INPUT
-        while self.active:
+        while True:
             if self.button.value is True:
                 self._logger.info("Sending emergency stop GCODE")
                 self._printer.commands("M112")
-                time.sleep(0.2)                
+                time.sleep(0.2)
+                self.active = True
             else:
                 if self.button.value is False:
-                    self.active = False
+                    self.active = True
 
     def on_event(self, event, payload):
         if event is Events.CONNECTED:
@@ -68,8 +76,9 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
         elif event is Events.DISCONNECTED:
             self.estop_sent = False
 
-    def on_shutdown(self):
-        self.button.deinit()
+    def on_shutdown(self,):
+        t.cancel()
+        self.active = False
 
     def get_update_information(self):
         return {
