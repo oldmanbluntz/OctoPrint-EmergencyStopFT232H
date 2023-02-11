@@ -76,7 +76,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
         elif event is Events.DISCONNECTED:
             self.estop_sent = False
 
-    def on_shutdown(self,):
+    def on_shutdown(self):
         t.cancel()
         self.active = False
 
