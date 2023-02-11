@@ -22,6 +22,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
 
     def __init__(self):
         self.button = None
+        self.my_thread = None
         self.active = True
         self.estop_sent = False
         self.button_value = True
@@ -52,10 +53,9 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
         self._logger.info("-------------------------------------------------------")
         self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
         self.button.direction = digitalio.Direction.INPUT
-        t = threading.Timer(0, self._setup_button)
-        t.daemon = True
-        t.start()
-        self._setup_button()
+        self.my_thread = threading.Timer(0, self._setup_button)
+        self.my_thread.daemon = True
+        self.my_thread.start()
 
     def _setup_button(self):
         self.button = digitalio.DigitalInOut(getattr(board, self._settings.get(["button_pin"])))
@@ -65,7 +65,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
                 self._logger.info("Sending emergency stop GCODE")
                 self._printer.commands("M112")
                 time.sleep(0.2)
-                self.active = True
+                self.active = False
             else:
                 if self.button.value is False:
                     self.active = True
@@ -77,7 +77,7 @@ class Emergencystopft232hPlugin(octoprint.plugin.AssetPlugin,
             self.estop_sent = False
 
     def on_shutdown(self):
-        t.cancel()
+        self.my_thread.cancel()
         self.active = False
 
     def get_update_information(self):
